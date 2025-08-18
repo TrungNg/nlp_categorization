@@ -1,14 +1,15 @@
 ## Project categorization via sentence embeddings
 
-This repo provides a simple NLP workflow to categorize infrastructure construction projects into six categories using sentence embeddings and nearest-neighbor matching in embedding space.
+This repo provides a simple NLP workflow to categorize infrastructure construction projects into seven categories using sentence embeddings and nearest-neighbor matching in embedding space.
 
 Categories:
-- Transportation
+- Transportation (excluding ports & airports)
 - Ports and Airports
+- Water and Wastewater
 - Energy and ICT
 - Site development (including subdivision, parks, reserves, cemeteries, etc.)
-- Water and Wastewater
 - Environmental (including waste management, geotechnical, erosion control, flood control, etc.)
+- Non infrastructure
 
 ### Input data
 

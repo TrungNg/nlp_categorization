@@ -17,9 +17,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default=None, help="Torch device, e.g. cpu or cuda")
     parser.add_argument("--top_k", type=int, default=3, help="Number of top categories to include")
     parser.add_argument("--batch_size", type=int, default=64, help="Embedding batch size")
-    parser.add_argument("--w_prde", type=float, default=2, help="Weight for prde field")
-    parser.add_argument("--w_sort", type=float, default=1, help="Weight for sort field")
-    parser.add_argument("--w_description", type=float, default=1, help="Weight for description field")
+    parser.add_argument("--w_prde", type=int, default=2, help="Weight for prde field")
+    parser.add_argument("--w_sort", type=int, default=1, help="Weight for sort field")
+    parser.add_argument("--w_description", type=int, default=1, help="Weight for description field")
     return parser.parse_args()
 
 
