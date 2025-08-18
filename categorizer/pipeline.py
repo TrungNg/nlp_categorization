@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from .config import CATEGORY_ANCHORS, CATEGORY_LABELS
-from .data import TextBuildOptions, prepare_corpus_texts
+from .data import TextBuildOptions, prepare_corpus_texts, FieldWeights
 from .embed import EmbeddingModel, compute_cosine_similarities
 
 
@@ -44,11 +44,14 @@ class Categorizer:
 		self.anchor_labels, self.anchor_texts = _flatten_category_anchors()
 		self.anchor_vectors = self.model.encode(self.anchor_texts)
 
-	def categorize_texts(self, texts: List[str]) -> List[CategorizationResult]:
+	def categorize_texts(self, texts: List[str], texts0: List[str]) -> List[CategorizationResult]:
 		if len(texts) == 0:
 			return []
 		query_vectors = self.model.encode(texts)
+		query_vectors0 = self.model.encode(texts0)
 		sim_matrix = compute_cosine_similarities(query_vectors, self.anchor_vectors)
+		sim_matrix0 = compute_cosine_similarities(query_vectors0, self.anchor_vectors)
+		sim_matrix = (sim_matrix + sim_matrix0) / 2
 
 		results: List[CategorizationResult] = []
 		for row in sim_matrix:
@@ -61,18 +64,21 @@ class Categorizer:
 			sorted_pairs = sorted(category_to_score.items(), key=lambda kv: kv[1], reverse=True)
 			top_pairs = sorted_pairs[: self.top_k]
 			label, score = top_pairs[0]
-			results.append(CategorizationResult(label=label, score=float(score), top_categories=[(l, float(s)) for l, s in top_pairs]))
+			results.append(CategorizationResult(label=label, score=float(score), top_categories=[(l, float(s)) for l, s in top_pairs if float(s)]))
 		return results
 
 	def categorize_dataframe(self, df: pd.DataFrame, text_options: TextBuildOptions | None = None) -> pd.DataFrame:
 		texts = prepare_corpus_texts(df, text_options)
-		results = self.categorize_texts(texts)
+		texts0 = prepare_corpus_texts(df, TextBuildOptions(weights=FieldWeights(prde=1, sort=0, description=0)))
+		results = self.categorize_texts(texts, texts0)
 		# Assemble output
 		out_df = df.copy()
 		out_df["combined_text"] = texts
 		out_df["category_pred"] = [r.label for r in results]
 		out_df["category_score"] = [r.score for r in results]
 		out_df["top_categories"] = [json.dumps(r.top_categories) for r in results]
+		out_df["category_calibrated"] = [r.top_categories[1][0] if r.top_categories[0][0] == "Non Infrastructure" and r.top_categories[1][1] > 0.3 \
+			and r.top_categories[1][1] > r.top_categories[0][1]*0.8 and len(r.top_categories) > 1 else r.top_categories[0][0] for r in results]
 		return out_df
 
 

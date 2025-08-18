@@ -34,7 +34,11 @@ def build_weighted_text(row: pd.Series, options: TextBuildOptions) -> str:
 	if options.weights.sort > 0:
 		parts.append((safe_str(row.get("sort")), options.weights.sort))
 	if options.weights.description > 0:
-		parts.append((safe_str(row.get("description")), options.weights.description))
+		description = row.get("description")
+		if description:
+			description = str(description).split('.')
+			description = '.'.join( description[:min(len(description), 3)] )
+			parts.append((safe_str(description), options.weights.description))
 
 	# Repeat tokens proportionally to weights by simple scaling
 	text_segments: List[str] = []
@@ -42,7 +46,7 @@ def build_weighted_text(row: pd.Series, options: TextBuildOptions) -> str:
 		if not text:
 			continue
 		repeats = max(1, int(round(weight)))
-		text_segments.extend([text] * repeats)
+		text_segments.append('/'.join([text] * repeats))
 	return options.separator.join(text_segments).strip()
 
 
