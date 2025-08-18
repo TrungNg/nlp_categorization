@@ -6,10 +6,10 @@ CATEGORY_LABELS: List[str] = [
 	"Transportation",
 	"Ports and Airports",
 	"Energy and ICT",
-	"Site development",
+	"Site Development",
 	"Water and Wastewater",
 	"Environmental",
-	"Non infrastructure",
+	"Non Infrastructure",
 ]
 
 
