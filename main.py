@@ -19,6 +19,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch_size", type=int, default=64, help="Embedding batch size")
     parser.add_argument("--w_prde", type=int, default=1, help="Weight for prde field")
     parser.add_argument("--w_sort", type=int, default=0, help="Weight for sort field")
+    parser.add_argument("--w_description", type=int, default=0, help="Weight for description field")
     return parser.parse_args()
 
 
@@ -31,7 +32,7 @@ def main() -> int:
 
     df = pd.read_csv(args.input_path)
 
-    text_options = TextBuildOptions(weights=FieldWeights(prde=args.w_prde, sort=args.w_sort, description=1))
+    text_options = TextBuildOptions(weights=FieldWeights(prde=args.w_prde, sort=args.w_sort, description=args.w_description))
     categorizer = Categorizer(model_name=args.model_name, device=args.device, top_k=args.top_k, batch_size=args.batch_size)
 
     out_df = categorizer.categorize_dataframe(df, text_options)
